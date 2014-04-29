@@ -63,6 +63,7 @@ def gen_album(data, outdir, albumid):
 
 def gen_index(data, out, albumtype):
     albums = [a for a in data.albums.values() if a.albumtype == albumtype]
+    albums = [a for a in albums if not a.ishidden()]
 
     out.write("<table>\n")
 

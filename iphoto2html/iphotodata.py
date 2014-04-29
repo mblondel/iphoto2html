@@ -509,6 +509,9 @@ class IPhotoContainer(object):
         """Gets a string that describes this album or event."""
         return "%s (%s)" % (self.name, self.albumtype)
 
+    def ishidden(self):
+        return all([img.ishidden() for img in self.images])
+
 
 class IPhotoRoll(IPhotoContainer):
     """Describes an iPhoto Roll or Event."""
