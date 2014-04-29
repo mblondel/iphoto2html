@@ -84,7 +84,7 @@ def gen_album(data, outdir, albumid):
 def gen_index(data, out, albumtype):
     albums = [a for a in data.albums.values() if a.albumtype == albumtype]
     albums = [a for a in albums if not a.ishidden()]
-    albums.sort(lambda x,y: cmp(x.date, y.date))
+    albums.sort(lambda x,y: cmp(x.date, y.date), reverse=True)
 
     out.write("<table>\n")
 
