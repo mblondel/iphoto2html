@@ -18,13 +18,18 @@ def group(it, size):
 
 def gen_album_thumbnail(data, out, albumid):
     album = data.albums[albumid]
-    if len(album.images) > 0:
-        img = album.images[0]
+    images = [img for img in album.images if not img.ishidden()]
+    albumid = album.albumid.encode("utf8")
+    name = album.name.encode("utf8")
+
+    if len(images) > 0:
+        img = images[0]
         thumbpath = img.thumbpath.encode("utf8")
-        albumid = album.albumid.encode("utf8")
-        name = album.name.encode("utf8")
         out.write("%s<br /><a href='album_%s.html'><img src='%s'></a>\n" % \
                   (name, albumid, thumbpath))
+    else:
+        out.write("<a href='album_%s.html'>%s</a>\n" % \
+                  (albumid, name))
 
 
 def gen_album(data, outdir, albumid):
@@ -41,8 +46,9 @@ def gen_album(data, outdir, albumid):
 """)
 
     album = data.albums[albumid]
+    images = [img for img in album.images if not img.ishidden()]
 
-    for line in group(album.images, 3):
+    for line in group(images, 3):
         out.write("<tr>\n")
 
         for img in line:
