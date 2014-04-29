@@ -1,0 +1,145 @@
+#!/usr/bin/env python
+
+import os
+
+from iphoto2html.iphotodata import get_iphoto_data
+
+
+def group(it, size):
+    gr = []
+    for ele in it:
+        gr.append(ele)
+        if len(gr) == size:
+            yield gr
+            gr = []
+    if len(gr) != 0:
+        yield gr
+
+
+def gen_album_thumbnail(data, out, albumid):
+    album = data.albums[albumid]
+    if len(album.images) > 0:
+        img = album.images[0]
+        thumbpath = img.thumbpath.encode("utf8")
+        albumid = album.albumid.encode("utf8")
+        name = album.name.encode("utf8")
+        out.write("%s<br /><a href='album_%s.html'><img src='%s'></a>\n" % \
+                  (name, albumid, thumbpath))
+
+
+def gen_album(data, outdir, albumid):
+    out = os.path.join(outdir, "album_%s.html" % albumid)
+    out = file(out, "w")
+    out.write("""
+<html>
+    <head>
+        <title>iPhoto gallery</title>
+        <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+    </head>
+    <body>
+        <table>
+""")
+
+    album = data.albums[albumid]
+
+    for line in group(album.images, 3):
+        out.write("<tr>\n")
+
+        for img in line:
+            thumbpath = img.thumbpath.encode("utf8")
+            imgpath = img.getimagepath().encode("utf8")
+            out.write("<td><a href='%s'><img src='%s' /></a></td>\n" % \
+                      (imgpath, thumbpath))
+            #print image.ismovie()
+
+        out.write("</tr>\n")
+
+    out.write("""
+        </table>
+    </body>
+</html>
+""")
+
+
+def gen_index(data, out, albumtype):
+    albums = [a for a in data.albums.values() if a.albumtype == albumtype]
+
+    out.write("<table>\n")
+
+    for line in group(albums, 3):
+        out.write("<tr>\n")
+
+        for album in line:
+            out.write("<td>")
+            gen_album_thumbnail(data, out, album.albumid)
+            out.write("</td>")
+
+        out.write("</tr>\n")
+
+    out.write("</table>\n")
+
+
+def gen_all(data, outdir):
+    out = os.path.join(outdir, "index.html")
+    out = file(out, "w")
+    out.write("""
+<html>
+    <head>
+        <title>iPhoto gallery</title>
+        <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+    </head>
+    <body>
+""")
+
+    out.write("<h2>Albums</h2>\n")
+    gen_index(data, out, "Regular")
+
+    out.write("<h2>Events</h2>\n")
+    gen_index(data, out, "Event")
+
+
+    for albumid, album in data.albums.items():
+        gen_album(data, outdir, album.albumid)
+
+        #print album.albumid
+        #print album.albumtype
+        #print album.parent.name
+        #print album.parent.albumid
+
+    out.write("""
+    </body>
+</html>
+""")
+
+
+if __name__ == '__main__':
+    import sys
+
+    photolib = os.path.join(sys.argv[1], "AlbumData.xml")
+    out = sys.argv[2]
+
+    data = get_iphoto_data(photolib)
+
+    if not os.path.exists(out):
+        os.makedirs(out)
+
+    gen_all(data, out)
+
+#album = data.albums[unicode("221")]
+#print len(album.images)
+
+#for image in album.images:
+    #print image.getimagepath()
+    #print image.thumbpath
+    #print image.ismovie()
+    #print "-" * 10
+
+#for album in data.root_album.albums:
+    #print album.name
+    #print album.albumid
+    #print album.albumtype
+    ##print album.parent.name
+    ##print album.parent.albumid
+    #print "-" * 10
+
+# Types of albums: folder, regular, event
