@@ -25,6 +25,7 @@ def gen_album_thumbnail(data, out, albumid):
     if len(images) > 0:
         img = images[0]
         thumbpath = img.thumbpath.encode("utf8")
+        thumbpath = "../" + thumbpath[thumbpath.index("Thumbnails"):]
         out.write("%s<br /><a href='album_%s.html'><img src='%s'></a>\n" % \
                   (name, albumid, thumbpath))
     else:
@@ -33,7 +34,7 @@ def gen_album_thumbnail(data, out, albumid):
 
 
 def gen_album(data, outdir, albumid):
-    out = os.path.join(outdir, "album_%s.html" % albumid)
+    out = os.path.join(outdir, "album_%s.html" % albumid.encode("utf8"))
     out = file(out, "w")
     out.write("""
 <html>
@@ -47,13 +48,22 @@ def gen_album(data, outdir, albumid):
 
     album = data.albums[albumid]
     images = [img for img in album.images if not img.ishidden()]
+    images.sort(lambda x,y: cmp(x.date, y.date))
 
     for line in group(images, 3):
         out.write("<tr>\n")
 
         for img in line:
             thumbpath = img.thumbpath.encode("utf8")
+            thumbpath = "../" + thumbpath[thumbpath.index("Thumbnails"):]
+
             imgpath = img.getimagepath().encode("utf8")
+            try:
+                imgpath = "../" + imgpath[imgpath.index("Masters"):]
+            except:
+                imgpath = "../" + imgpath[imgpath.index("Previews"):]
+
+
             out.write("<td><a href='%s'><img src='%s' /></a></td>\n" % \
                       (imgpath, thumbpath))
             #print image.ismovie()
@@ -70,6 +80,7 @@ def gen_album(data, outdir, albumid):
 def gen_index(data, out, albumtype):
     albums = [a for a in data.albums.values() if a.albumtype == albumtype]
     albums = [a for a in albums if not a.ishidden()]
+    albums.sort(lambda x,y: cmp(x.date, y.date))
 
     out.write("<table>\n")
 
@@ -123,7 +134,7 @@ if __name__ == '__main__':
     import sys
 
     photolib = os.path.join(sys.argv[1], "AlbumData.xml")
-    out = sys.argv[2]
+    out = os.path.join(sys.argv[1], "html")
 
     data = get_iphoto_data(photolib)
 
