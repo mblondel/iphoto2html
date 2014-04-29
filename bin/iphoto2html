@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import os
+import urllib
 
 from iphoto2html.iphotodata import get_iphoto_data
 
@@ -26,6 +27,7 @@ def gen_album_thumbnail(data, out, albumid):
         img = images[0]
         thumbpath = img.thumbpath.encode("utf8")
         thumbpath = "../" + thumbpath[thumbpath.index("Thumbnails"):]
+        thumbpath = urllib.quote(thumbpath)
         out.write("%s<br /><a href='album_%s.html'><img src='%s'></a>\n" % \
                   (name, albumid, thumbpath))
     else:
@@ -56,12 +58,14 @@ def gen_album(data, outdir, albumid):
         for img in line:
             thumbpath = img.thumbpath.encode("utf8")
             thumbpath = "../" + thumbpath[thumbpath.index("Thumbnails"):]
+            thumbpath = urllib.quote(thumbpath)
 
             imgpath = img.getimagepath().encode("utf8")
             try:
                 imgpath = "../" + imgpath[imgpath.index("Masters"):]
             except:
                 imgpath = "../" + imgpath[imgpath.index("Previews"):]
+            imgpath = urllib.quote(imgpath)
 
 
             out.write("<td><a href='%s'><img src='%s' /></a></td>\n" % \
