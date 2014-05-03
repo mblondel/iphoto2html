@@ -2,18 +2,18 @@
 
 // File and new size
 $filename = $_GET['filename'];
-$newwidth = $_GET['width'];
+$newheight = $_GET['height'];
 
-if(!isset($newwidth))
-    $newwidth = 1024;
+if(!isset($newheight))
+    $newheight = 750;
 
 // Content type
 header('Content-Type: image/jpeg');
 
 // Get new sizes
 list($width, $height) = getimagesize($filename);
-$percent = $newwidth / $width;
-$newheight = $height * $percent;
+$percent = $newheight / $height;
+$newwidth = $width * $percent;
 
 // Load
 $thumb = imagecreatetruecolor($newwidth, $newheight);
