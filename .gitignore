@@ -1,0 +1,13 @@
+*.pyc
+*~
+.#*
+*.swp
+.DS_Store
+build
+
+dist/
+pip-log.txt
+iphoto2html.egg-info/
+.coverage
+coverage
+coverages.zip
