@@ -69,12 +69,11 @@ def gen_album(data, outdir, albumid, opts):
             imgpath = urllib.quote(imgpath)
 
 
-            if opts.imagephp:
+            if opts.imagephp and not img.ismovie():
                 imgpath = "image.php?filename=" + imgpath
 
             out.write("<td><a href='%s'><img src='%s' /></a></td>\n" % \
                       (imgpath, thumbpath))
-            #print image.ismovie()
 
         out.write("</tr>\n")
 
