@@ -5,7 +5,13 @@ $filename = $_GET['filename'];
 $newheight = $_GET['height'];
 
 if(!isset($newheight))
-    $newheight = 750;
+    $newheight = 700;
+
+if(!preg_match("/(jpg|jpeg)$/i", $filename))
+    exit;
+
+if(!file_exists($filename))
+    exit;
 
 // Content type
 header('Content-Type: image/jpeg');
