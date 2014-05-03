@@ -78,8 +78,13 @@ def gen_album(data, outdir, albumid, opts):
             if opts.imagephp and not img.ismovie():
                 imgpath = "image.php?filename=" + imgpath
 
-            out.write("<td><a href='%s'><img src='%s' class='thumbnail' /></a></td>\n" % \
-                      (imgpath, thumbpath))
+            caption = ""
+
+            if img.ismovie():
+                caption += "&nbsp;<img src='camera-video-small.png' />"
+
+            out.write("<td>%s<br/><a href='%s'><img src='%s' class='thumbnail' /></a></td>\n" % \
+                      (caption, imgpath, thumbpath))
 
         out.write("</tr>\n")
 
@@ -148,6 +153,7 @@ def gen_all(data, outdir, opts):
 if __name__ == '__main__':
     import shutil
     from optparse import OptionParser
+    import glob
 
     op = OptionParser()
     op.add_option("--imagephp", action="store_true", dest="imagephp")
@@ -167,6 +173,10 @@ if __name__ == '__main__':
 
     shutil.copyfile(os.path.join(datadir, "style.css"),
                     os.path.join(out, "style.css"))
+
+    for png in glob.glob(os.path.join(datadir, "*.png")):
+        png_base = os.path.basename(png)
+        shutil.copyfile(png, os.path.join(out, png_base))
 
     if opts.imagephp:
         shutil.copyfile(os.path.join(datadir, "image.php"),
