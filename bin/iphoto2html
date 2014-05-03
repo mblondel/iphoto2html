@@ -7,6 +7,23 @@ from iphoto2html import get_data_dir
 from iphoto2html.iphotodata import get_iphoto_data
 
 
+HEADER = """
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <title>iPhoto gallery</title>
+        <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+        <link rel="stylesheet" href="style.css" type="text/css" media="screen">
+    </head>
+    <body>
+"""
+
+FOOTER = """
+    </body>
+</html>
+"""
+
+
 def group(it, size):
     gr = []
     for ele in it:
@@ -43,18 +60,7 @@ def gen_album(data, outdir, albumid, opts):
     album = data.albums[albumid]
     name = album.name.encode("utf8")
 
-    out.write("""
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-    <head>
-        <title>iPhoto gallery</title>
-        <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
-        <link rel="stylesheet" href="style.css" type="text/css" media="screen">
-    </head>
-    <body>
-        <h2>%s</h2>
-        <table>
-""" % name)
+    out.write("%s\n<h2>%s</h2>\n <table>" % (HEADER, name))
 
     images = [img for img in album.images if not img.ishidden()]
     images.sort(lambda x,y: cmp(x.date, y.date))
@@ -88,11 +94,7 @@ def gen_album(data, outdir, albumid, opts):
 
         out.write("</tr>\n")
 
-    out.write("""
-        </table>
-    </body>
-</html>
-""")
+    out.write("</table>\n%s" % FOOTER)
 
 
 def gen_index(data, out, albumtype):
@@ -118,16 +120,7 @@ def gen_index(data, out, albumtype):
 def gen_all(data, outdir, opts):
     out = os.path.join(outdir, "index.html")
     out = file(out, "w")
-    out.write("""
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-    <head>
-        <title>iPhoto gallery</title>
-        <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
-        <link rel="stylesheet" href="style.css" type="text/css" media="screen">
-    </head>
-    <body>
-""")
+    out.write(HEADER)
 
     out.write("<h2>Albums</h2>\n")
     gen_index(data, out, "Regular")
@@ -144,10 +137,7 @@ def gen_all(data, outdir, opts):
         #print album.parent.name
         #print album.parent.albumid
 
-    out.write("""
-    </body>
-</html>
-""")
+    out.write(FOOTER)
 
 
 if __name__ == '__main__':
