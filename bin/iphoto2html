@@ -115,6 +115,11 @@ def gen_page(data, outdir, albumid, imgid, img, n_images):
     out.write(FOOTER)
 
 
+def gen_home_button(out):
+    out.write("<p align='right'><a href='index.html'>"
+              "<img src='go-home-small.png' /></a></p>\n")
+
+
 def gen_album(data, outdir, albumid, opts):
     albumid_utf8 = albumid.encode("utf8")
     out = os.path.join(outdir, "album_%s.html" % albumid_utf8)
@@ -123,7 +128,10 @@ def gen_album(data, outdir, albumid, opts):
     album = data.albums[albumid]
     name = album.name.encode("utf8")
 
-    out.write("%s\n<h2>%s</h2>\n <table>" % (HEADER, name))
+    out.write(HEADER)
+    out.write("<h2>%s</h2>\n" % name)
+    gen_home_button(out)
+    out.write("<table>\n")
 
     images = [img for img in album.images if not img.ishidden()]
     images.sort(lambda x,y: cmp(x.date, y.date))
@@ -154,7 +162,9 @@ def gen_album(data, outdir, albumid, opts):
 
         out.write("</tr>\n")
 
-    out.write("</table>\n%s" % FOOTER)
+    out.write("</table>\n")
+    gen_home_button(out)
+    out.write(FOOTER) 
 
 
 def gen_index(data, out, albumtype):
