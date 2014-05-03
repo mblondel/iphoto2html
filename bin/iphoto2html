@@ -85,7 +85,7 @@ def gen_page(data, outdir, albumid, imgid, img, n_images):
         out.write("<img src='camera-video-small.png' /><br />"
                   "<a href='%s'><img src='%s' /></a>" % (imgpath, thumbpath))
 
-    elif opts.imagephp:
+    elif opts.dresize:
         out.write("<a href='%s'><img src='image.php?filename=%s' /></a>\n" % \
                           (imgpath, imgpath))
     else:
@@ -216,7 +216,7 @@ if __name__ == '__main__':
     import glob
 
     op = OptionParser()
-    op.add_option("--imagephp", action="store_true", dest="imagephp")
+    op.add_option("--dresize", action="store_true", dest="dresize")
     (opts, args) = op.parse_args()
 
     photolib = os.path.join(args[0], "AlbumData.xml")
@@ -238,6 +238,6 @@ if __name__ == '__main__':
         png_base = os.path.basename(png)
         shutil.copyfile(png, os.path.join(out, png_base))
 
-    if opts.imagephp:
+    if opts.dresize:
         shutil.copyfile(os.path.join(datadir, "image.php"),
                         os.path.join(out, "image.php"))
