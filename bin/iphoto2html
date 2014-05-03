@@ -39,6 +39,10 @@ def gen_album_thumbnail(data, out, albumid):
 def gen_album(data, outdir, albumid, opts):
     out = os.path.join(outdir, "album_%s.html" % albumid.encode("utf8"))
     out = file(out, "w")
+
+    album = data.albums[albumid]
+    name = album.name.encode("utf8")
+
     out.write("""
 <html>
     <head>
@@ -46,10 +50,10 @@ def gen_album(data, outdir, albumid, opts):
         <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
     </head>
     <body>
+        <h2>%s</h2>
         <table>
-""")
+""" % name)
 
-    album = data.albums[albumid]
     images = [img for img in album.images if not img.ishidden()]
     images.sort(lambda x,y: cmp(x.date, y.date))
 
