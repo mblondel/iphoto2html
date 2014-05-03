@@ -3,6 +3,7 @@
 import os
 import urllib
 
+from iphoto2html import get_data_dir
 from iphoto2html.iphotodata import get_iphoto_data
 
 
@@ -35,7 +36,7 @@ def gen_album_thumbnail(data, out, albumid):
                   (albumid, name))
 
 
-def gen_album(data, outdir, albumid):
+def gen_album(data, outdir, albumid, opts):
     out = os.path.join(outdir, "album_%s.html" % albumid.encode("utf8"))
     out = file(out, "w")
     out.write("""
@@ -67,6 +68,9 @@ def gen_album(data, outdir, albumid):
                 imgpath = "../" + imgpath[imgpath.index("Previews"):]
             imgpath = urllib.quote(imgpath)
 
+
+            if opts.imagephp:
+                imgpath = "image.php?filename=" + imgpath
 
             out.write("<td><a href='%s'><img src='%s' /></a></td>\n" % \
                       (imgpath, thumbpath))
@@ -101,7 +105,7 @@ def gen_index(data, out, albumtype):
     out.write("</table>\n")
 
 
-def gen_all(data, outdir):
+def gen_all(data, outdir, opts):
     out = os.path.join(outdir, "index.html")
     out = file(out, "w")
     out.write("""
@@ -121,7 +125,7 @@ def gen_all(data, outdir):
 
 
     for albumid, album in data.albums.items():
-        gen_album(data, outdir, album.albumid)
+        gen_album(data, outdir, album.albumid, opts)
 
         #print album.albumid
         #print album.albumtype
@@ -135,33 +139,26 @@ def gen_all(data, outdir):
 
 
 if __name__ == '__main__':
-    import sys
+    import shutil
+    from optparse import OptionParser
 
-    photolib = os.path.join(sys.argv[1], "AlbumData.xml")
-    out = os.path.join(sys.argv[1], "html")
+    op = OptionParser()
+    op.add_option("--imagephp", action="store_true", dest="imagephp")
+    (opts, args) = op.parse_args()
+
+    photolib = os.path.join(args[0], "AlbumData.xml")
+    out = os.path.join(args[0], "html")
 
     data = get_iphoto_data(photolib)
 
     if not os.path.exists(out):
         os.makedirs(out)
 
-    gen_all(data, out)
+    gen_all(data, out, opts)
 
-#album = data.albums[unicode("221")]
-#print len(album.images)
+    datadir = get_data_dir()
 
-#for image in album.images:
-    #print image.getimagepath()
-    #print image.thumbpath
-    #print image.ismovie()
-    #print "-" * 10
-
-#for album in data.root_album.albums:
-    #print album.name
-    #print album.albumid
-    #print album.albumtype
-    ##print album.parent.name
-    ##print album.parent.albumid
-    #print "-" * 10
-
-# Types of albums: folder, regular, event
+    if opts.imagephp:
+        imagephp = os.path.join(datadir, "image.php")
+        imagephp_copy = os.path.join(out, "image.php")
+        shutil.copyfile(imagephp, imagephp_copy)
