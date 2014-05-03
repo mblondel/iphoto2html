@@ -53,8 +53,71 @@ def gen_album_thumbnail(data, out, albumid):
                   (albumid, name))
 
 
+def get_thumbpath(img):
+    thumbpath = img.thumbpath.encode("utf8")
+    thumbpath = "../" + thumbpath[thumbpath.index("Thumbnails"):]
+    thumbpath = urllib.quote(thumbpath)
+    return thumbpath
+
+
+def get_imgpath(img):
+    imgpath = img.getimagepath().encode("utf8")
+    try:
+        imgpath = "../" + imgpath[imgpath.index("Masters"):]
+    except:
+        imgpath = "../" + imgpath[imgpath.index("Previews"):]
+    imgpath = urllib.quote(imgpath)
+    return imgpath
+
+
+def gen_page(data, outdir, albumid, imgid, img, n_images):
+    out = os.path.join(outdir, "page_%s_%d.html" % (albumid, imgid))
+    out = file(out, "w")
+    out.write(HEADER)
+
+
+    thumbpath = get_thumbpath(img)
+    imgpath = get_imgpath(img)
+
+    out.write("<center>\n")
+ 
+    if img.ismovie():
+        out.write("<img src='camera-video-small.png' /><br />"
+                  "<a href='%s'><img src='%s' /></a>" % (imgpath, thumbpath))
+
+    elif opts.imagephp:
+        out.write("<a href='%s'><img src='image.php?filename=%s' /></a>\n" % \
+                          (imgpath, imgpath))
+    else:
+        out.write("<a href='%s'><img src='%s' height='700' /></a>\n" % \
+                          (imgpath, imgpath))
+    out.write("</center>\n")
+
+    out.write("<p align='center'>")
+
+    if imgid != 1:
+        out.write("<a href='page_%s_%d.html'><img src='go-previous-small.png' "
+                  "/></a>&nbsp;&nbsp;\n" % (albumid, imgid - 1))
+    else:
+        out.write("<img src='blank.png' />&nbsp;&nbsp;\n")
+
+    out.write("<a href='album_%s.html'><img src='folder-open-small.png' "
+              "/></a>&nbsp;&nbsp;\n" % albumid)
+
+    if imgid != n_images:
+        out.write("<a href='page_%s_%d.html'><img src='go-next-small.png' "
+                  "/></a>\n" % (albumid, imgid + 1))
+    else:
+        out.write("<img src='blank.png' />&nbsp;&nbsp;\n")
+
+    out.write("</p>")
+
+    out.write(FOOTER)
+
+
 def gen_album(data, outdir, albumid, opts):
-    out = os.path.join(outdir, "album_%s.html" % albumid.encode("utf8"))
+    albumid_utf8 = albumid.encode("utf8")
+    out = os.path.join(outdir, "album_%s.html" % albumid_utf8)
     out = file(out, "w")
 
     album = data.albums[albumid]
@@ -65,32 +128,29 @@ def gen_album(data, outdir, albumid, opts):
     images = [img for img in album.images if not img.ishidden()]
     images.sort(lambda x,y: cmp(x.date, y.date))
 
+    imgid = 1
     for line in group(images, 3):
         out.write("<tr>\n")
 
         for img in line:
-            thumbpath = img.thumbpath.encode("utf8")
-            thumbpath = "../" + thumbpath[thumbpath.index("Thumbnails"):]
-            thumbpath = urllib.quote(thumbpath)
-
-            imgpath = img.getimagepath().encode("utf8")
-            try:
-                imgpath = "../" + imgpath[imgpath.index("Masters"):]
-            except:
-                imgpath = "../" + imgpath[imgpath.index("Previews"):]
-            imgpath = urllib.quote(imgpath)
-
-
-            if opts.imagephp and not img.ismovie():
-                imgpath = "image.php?filename=" + imgpath
+            thumbpath = get_thumbpath(img)
+            imgpath = get_imgpath(img)
 
             caption = ""
 
+            gen_page(data, outdir, albumid_utf8, imgid, img, len(images))
+
             if img.ismovie():
                 caption += "&nbsp;<img src='camera-video-small.png' />"
+                out.write("<td>%s<br /><a href='%s'><img src='%s' /></a>"
+                          "</td>" % (caption, imgpath, thumbpath))
+ 
+            else:
+                out.write("<td>%s<br /><a href='page_%s_%d.html'><img src='%s' "
+                          "class='thumbnail' /></a></td>\n" % \
+                          (caption, albumid_utf8, imgid, thumbpath))
 
-            out.write("<td>%s<br/><a href='%s'><img src='%s' class='thumbnail' /></a></td>\n" % \
-                      (caption, imgpath, thumbpath))
+            imgid += 1
 
         out.write("</tr>\n")
 
