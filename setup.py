@@ -7,7 +7,7 @@ from distutils.core import setup
 
 setup(
     name = 'iphoto2html',
-    description = 'Convert your iPhoto library to a static web gallery',
+    description = 'Generate a static html gallery for your iPhoto library.',
     author = 'Mathieu Blondel',
     author_email = 'mathieu ÂT mblondel DÔT org',
     url = 'https://github.com/mblondel/iphoto2html',
